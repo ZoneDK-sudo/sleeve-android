@@ -4,18 +4,21 @@ on:
   workflow_dispatch:
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - run: unzip -o '*.zip'
-      - uses: actions/setup-java@v4
+      - name: Fix code typo
+        run: sed -i 's/mag(fft\[0\], 0)/mag(fft[0], (byte) 0)/' sleeve-android/app/src/main/java/app/sleeve/visuals/MainActivity.java
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
+      - uses: android-actions/setup-android@v3
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.7'
-      - run: gradle assembleDebug
+      - run: gradle assembleDebug --stacktrace
         working-directory: sleeve-android
       - uses: actions/upload-artifact@v4
         with:
